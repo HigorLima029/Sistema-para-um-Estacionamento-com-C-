@@ -1,0 +1,378 @@
+.pagina {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- Letreiro (topo) ---------- */
+
+.letreiro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.5rem 2rem;
+  background: var(--asfalto-painel);
+  border-bottom: 4px solid var(--linha);
+  flex-wrap: wrap;
+}
+
+.letreiro__marca {
+  font-family: var(--fonte-sinal);
+  font-weight: 700;
+  font-size: 1.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--giz);
+}
+
+.letreiro__ponto {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--verde);
+  box-shadow: 0 0 10px var(--verde);
+}
+
+.letreiro__vagas {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  background: var(--asfalto);
+  border: 2px solid var(--linha-fraca);
+  border-radius: 10px;
+  padding: 0.5rem 1.25rem;
+}
+
+.letreiro__numero {
+  font-family: var(--fonte-display);
+  font-size: 2.75rem;
+  line-height: 1;
+  color: var(--linha);
+  text-shadow: 0 0 18px rgba(244, 197, 27, 0.45);
+}
+
+.letreiro__label {
+  font-family: var(--fonte-sinal);
+  font-size: 1rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--giz-fraco);
+}
+
+.letreiro__vagas--lotado .letreiro__numero {
+  color: var(--vermelho);
+  text-shadow: 0 0 18px rgba(229, 72, 77, 0.5);
+}
+
+.letreiro__vagas--lotado .letreiro__label {
+  color: var(--vermelho);
+}
+
+/* ---------- Avisos ---------- */
+
+.aviso {
+  margin: 1rem 2rem 0;
+  padding: 0.85rem 1.1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.aviso--offline {
+  background: rgba(229, 72, 77, 0.12);
+  border: 1px solid var(--vermelho);
+  color: var(--giz);
+}
+
+.aviso code {
+  font-family: var(--fonte-mono);
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+}
+
+/* ---------- Conteúdo ---------- */
+
+.conteudo {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 1.5rem;
+  padding: 2rem;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+@media (max-width: 800px) {
+  .conteudo {
+    grid-template-columns: 1fr;
+  }
+}
+
+.painel {
+  background: var(--asfalto-painel);
+  border: 1px solid var(--borda);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.painel__titulo {
+  font-family: var(--fonte-sinal);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 0 0 1.25rem;
+  color: var(--giz);
+}
+
+.painel__contagem {
+  color: var(--giz-fraco);
+  font-weight: 500;
+}
+
+/* ---------- Formulário ---------- */
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--giz-fraco);
+}
+
+.campo__input {
+  background: var(--asfalto);
+  border: 1px solid var(--borda);
+  border-radius: 6px;
+  padding: 0.65rem 0.75rem;
+  color: var(--giz);
+  font-size: 1rem;
+  font-family: var(--fonte-corpo);
+}
+
+.campo__input--mono {
+  font-family: var(--fonte-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.campo__input::placeholder {
+  color: #5c616b;
+}
+
+.erro {
+  color: var(--vermelho);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.botao {
+  border: none;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: transform 0.1s ease, opacity 0.15s ease;
+}
+
+.botao:active {
+  transform: scale(0.98);
+}
+
+.botao--primario {
+  background: var(--linha);
+  color: #23200a;
+}
+
+.botao--primario:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.botao--saida {
+  background: transparent;
+  border: 1px solid var(--vermelho);
+  color: var(--vermelho);
+  width: 100%;
+}
+
+.botao--saida:hover {
+  background: rgba(229, 72, 77, 0.1);
+}
+
+/* ---------- Lista de tickets ---------- */
+
+.vazio {
+  color: var(--giz-fraco);
+  font-size: 0.95rem;
+}
+
+.grade-tickets {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.ticket {
+  position: relative;
+  background: var(--asfalto-painel-2);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  padding: 1rem 1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  overflow: hidden;
+}
+
+.ticket::before,
+.ticket::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  background: var(--asfalto-painel);
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+
+.ticket::before {
+  left: -9px;
+}
+
+.ticket::after {
+  right: -9px;
+}
+
+.ticket__topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.ticket__placa {
+  font-family: var(--fonte-mono);
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.06em;
+  color: var(--linha);
+}
+
+.ticket__hora {
+  font-size: 0.7rem;
+  color: var(--giz-fraco);
+  white-space: nowrap;
+}
+
+.ticket__modelo {
+  margin: 0;
+  color: var(--giz);
+  font-size: 0.95rem;
+}
+
+.ticket__decorrido {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--giz-fraco);
+}
+
+/* ---------- Recibo (modal) ---------- */
+
+.sobreposicao {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 11, 13, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 10;
+}
+
+.cupom {
+  background: #f3f1ea;
+  color: #1a1c20;
+  width: 100%;
+  max-width: 320px;
+  padding: 1.5rem 1.5rem 1.75rem;
+  border-radius: 4px;
+  font-family: var(--fonte-mono);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.cupom__cabecalho {
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  margin: 0;
+}
+
+.cupom__subcabecalho {
+  text-align: center;
+  font-size: 0.75rem;
+  color: #6b6f76;
+  margin: 0.2rem 0 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.cupom__linha-tracejada {
+  border-top: 2px dashed #b9b6ab;
+  margin: 0.9rem 0;
+}
+
+.cupom__dados {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem 0.5rem;
+  margin: 0;
+}
+
+.cupom__dados div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.cupom__dados dt {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6b6f76;
+}
+
+.cupom__dados dd {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.cupom__total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.cupom__fechar {
+  width: 100%;
+  margin-top: 1.5rem;
+}
+
+.mono {
+  font-family: var(--fonte-mono);
+}

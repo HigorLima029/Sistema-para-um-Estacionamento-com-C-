@@ -1,0 +1,54 @@
+:root {
+  --asfalto: #1a1c20;
+  --asfalto-painel: #24272d;
+  --asfalto-painel-2: #2c2f36;
+  --linha: #f4c51b;
+  --linha-fraca: #8a7420;
+  --giz: #f3f1ea;
+  --giz-fraco: #9aa0aa;
+  --vermelho: #e5484d;
+  --verde: #4fa672;
+  --borda: #3a3e46;
+
+  --fonte-display: 'Archivo Black', sans-serif;
+  --fonte-sinal: 'Barlow Condensed', sans-serif;
+  --fonte-corpo: 'Inter', sans-serif;
+  --fonte-mono: 'Space Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--asfalto);
+  color: var(--giz);
+  font-family: var(--fonte-corpo);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background-image:
+    linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 8%),
+    repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(255,255,255,0.015) 79px, rgba(255,255,255,0.015) 81px);
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 3px solid var(--linha);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

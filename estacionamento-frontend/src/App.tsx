@@ -3,6 +3,14 @@ import { api } from './api'
 import type { Vagas, Veiculo, Saida } from './types'
 import './App.css'
 
+function formatarDataHora(iso: string): string {
+  const data = new Date(iso)
+  return `${data.toLocaleDateString('pt-BR')} ${data.toLocaleTimeString('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })}`
+}
+
 function formatarHora(iso: string): string {
   return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
 }
@@ -18,6 +26,9 @@ function tempoDecorrido(iso: string, agora: number): string {
 export default function App() {
   const [vagas, setVagas] = useState<Vagas | null>(null)
   const [veiculos, setVeiculos] = useState<Veiculo[]>([])
+  const [historico, setHistorico] = useState<Veiculo[]>([])
+  const [abaAtiva, setAbaAtiva] = useState<'patio' | 'historico'>('patio')
+  const [busca, setBusca] = useState('')
   const [placa, setPlaca] = useState('')
   const [modelo, setModelo] = useState('')
   const [erro, setErro] = useState<string | null>(null)
@@ -28,9 +39,14 @@ export default function App() {
 
   const carregarDados = async () => {
     try {
-      const [v, lista] = await Promise.all([api.consultarVagas(), api.listarEstacionados()])
+      const [v, lista, hist] = await Promise.all([
+        api.consultarVagas(),
+        api.listarEstacionados(),
+        api.listarHistorico().catch(() => []),
+      ])
       setVagas(v)
       setVeiculos(lista)
+      setHistorico(hist)
       setOffline(false)
     } catch {
       setOffline(true)
@@ -53,14 +69,17 @@ export default function App() {
     e.preventDefault()
     setErro(null)
 
-    if (!placa.trim() || !modelo.trim()) {
+    const placaLimpa = placa.trim().toUpperCase()
+    const modeloLimpo = modelo.trim()
+
+    if (!placaLimpa || !modeloLimpo) {
       setErro('Preencha placa e modelo do veículo.')
       return
     }
 
     setCarregando(true)
     try {
-      await api.adicionarVeiculo(placa, modelo)
+      await api.adicionarVeiculo(placaLimpa, modeloLimpo)
       setPlaca('')
       setModelo('')
       await carregarDados()
@@ -81,6 +100,27 @@ export default function App() {
       setErro(err instanceof Error ? err.message : 'Não foi possível registrar a saída.')
     }
   }
+
+  const handlePlacaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const valor = e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 8)
+    setPlaca(valor)
+  }
+
+  const veiculosFiltrados = useMemo(() => {
+    const termo = busca.trim().toLowerCase()
+    if (!termo) return veiculos
+    return veiculos.filter(
+      (v) => v.placa.toLowerCase().includes(termo) || v.modelo.toLowerCase().includes(termo)
+    )
+  }, [veiculos, busca])
+
+  const historicoFiltrado = useMemo(() => {
+    const termo = busca.trim().toLowerCase()
+    if (!termo) return historico
+    return historico.filter(
+      (v) => v.placa.toLowerCase().includes(termo) || v.modelo.toLowerCase().includes(termo)
+    )
+  }, [historico, busca])
 
   const vagasTexto = useMemo(() => {
     if (!vagas) return '—'
@@ -115,7 +155,7 @@ export default function App() {
               <span>Placa</span>
               <input
                 value={placa}
-                onChange={(e) => setPlaca(e.target.value.toUpperCase())}
+                onChange={handlePlacaChange}
                 placeholder="ABC1D23"
                 maxLength={8}
                 className="campo__input campo__input--mono"
@@ -138,28 +178,96 @@ export default function App() {
         </section>
 
         <section className="painel painel--lista">
-          <h2 className="painel__titulo">
-            Veículos no pátio <span className="painel__contagem">({veiculos.length})</span>
-          </h2>
-
-          {veiculos.length === 0 ? (
-            <p className="vazio">Nenhum veículo estacionado no momento.</p>
-          ) : (
-            <div className="grade-tickets">
-              {veiculos.map((v) => (
-                <article className="ticket" key={v.placa}>
-                  <div className="ticket__topo">
-                    <span className="ticket__placa">{v.placa}</span>
-                    <span className="ticket__hora">entrada {formatarHora(v.horaEntrada)}</span>
-                  </div>
-                  <p className="ticket__modelo">{v.modelo}</p>
-                  <p className="ticket__decorrido">{tempoDecorrido(v.horaEntrada, agora)} no pátio</p>
-                  <button className="botao botao--saida" onClick={() => handleRemover(v.placa)}>
-                    Registrar saída
-                  </button>
-                </article>
-              ))}
+          <div className="painel__topo">
+            <div className="abas">
+              <button
+                type="button"
+                className={`aba ${abaAtiva === 'patio' ? 'aba--ativa' : ''}`}
+                onClick={() => setAbaAtiva('patio')}
+              >
+                Veículos no pátio <span className="painel__contagem">({veiculos.length})</span>
+              </button>
+              <button
+                type="button"
+                className={`aba ${abaAtiva === 'historico' ? 'aba--ativa' : ''}`}
+                onClick={() => setAbaAtiva('historico')}
+              >
+                Histórico geral <span className="painel__contagem">({historico.length})</span>
+              </button>
             </div>
+
+            <div className="busca">
+              <input
+                type="text"
+                placeholder="Buscar por placa ou modelo…"
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                className="busca__input"
+              />
+              {busca && (
+                <button
+                  type="button"
+                  className="busca__limpar"
+                  onClick={() => setBusca('')}
+                  title="Limpar busca"
+                  aria-label="Limpar busca"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          </div>
+
+          {abaAtiva === 'patio' ? (
+            veiculosFiltrados.length === 0 ? (
+              <p className="vazio">
+                {busca ? `Nenhum veículo encontrado para "${busca}".` : 'Nenhum veículo estacionado no momento.'}
+              </p>
+            ) : (
+              <div className="grade-tickets">
+                {veiculosFiltrados.map((v) => (
+                  <article className="ticket" key={v.placa}>
+                    <div className="ticket__topo">
+                      <span className="ticket__placa">{v.placa}</span>
+                      <span className="ticket__hora">entrada {formatarHora(v.horaEntrada)}</span>
+                    </div>
+                    <p className="ticket__modelo">{v.modelo}</p>
+                    <p className="ticket__decorrido">{tempoDecorrido(v.horaEntrada, agora)} no pátio</p>
+                    <button className="botao botao--saida" onClick={() => handleRemover(v.placa)}>
+                      Registrar saída
+                    </button>
+                  </article>
+                ))}
+              </div>
+            )
+          ) : (
+            historicoFiltrado.length === 0 ? (
+              <p className="vazio">
+                {busca ? `Nenhum registro encontrado para "${busca}".` : 'Nenhum histórico registrado.'}
+              </p>
+            ) : (
+              <div className="historico-lista">
+                {historicoFiltrado.map((v, i) => (
+                  <div className="historico-item" key={`${v.placa}-${v.horaEntrada}-${i}`}>
+                    <div className="historico-item__info">
+                      <span className="historico-item__placa">{v.placa}</span>
+                      <span className="historico-item__modelo">{v.modelo}</span>
+                    </div>
+                    <div className="historico-item__datas">
+                      <span><strong>Entrada:</strong> {formatarDataHora(v.horaEntrada)}</span>
+                      <span>
+                        <strong>Saída:</strong>{' '}
+                        {v.horaSaida ? (
+                          formatarDataHora(v.horaSaida)
+                        ) : (
+                          <span className="tag-ativo">Ainda no pátio</span>
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )
           )}
         </section>
       </main>
@@ -174,6 +282,10 @@ function Recibo({ saida, onFechar }: { saida: Saida; onFechar: () => void }) {
     style: 'currency',
     currency: 'BRL',
   })
+
+  const handleImprimir = () => {
+    window.print()
+  }
 
   return (
     <div className="sobreposicao" role="dialog" aria-modal="true" aria-label="Comprovante de saída">
@@ -204,9 +316,14 @@ function Recibo({ saida, onFechar }: { saida: Saida; onFechar: () => void }) {
           <span>Total</span>
           <span className="mono">{valorFormatado}</span>
         </div>
-        <button className="botao botao--primario cupom__fechar" onClick={onFechar}>
-          Fechar
-        </button>
+        <div className="cupom__acoes">
+          <button type="button" className="botao botao--secundario" onClick={handleImprimir}>
+            🖨️ Imprimir cupom
+          </button>
+          <button type="button" className="botao botao--primario cupom__fechar" onClick={onFechar}>
+            Fechar
+          </button>
+        </div>
       </div>
     </div>
   )

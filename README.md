@@ -71,11 +71,15 @@ O front sobe em `http://localhost:5173` e já está configurado (CORS + URL da A
 
 Ajustável em `EstacionamentoApi/Services/EstacionamentoService.cs`.
 
-## Identidade visual do front-end
+## Identidade visual e recursos do front-end
 
 O front usa uma linguagem visual de pátio de estacionamento real:
 - **Letreiro** no topo mostrando vagas disponíveis, como um painel luminoso de garagem
 - **Tickets** com recorte lateral (como um bilhete de estacionamento) para cada veículo no pátio
 - **Comprovante** de saída no estilo cupom fiscal, com valor cobrado e tempo permanecido
+- **Busca em tempo real**: Campo para filtrar veículos no pátio ou no histórico por placa ou modelo
+- **Histórico geral**: Aba dedicada para consultar entradas passadas e saídas já finalizadas
+- **Impressão de cupom**: Botão de impressão formatado exclusivamente para o cupom fiscal (estilo recibo térmico)
+- **Máscara de placa**: Tratamento e padronização automática de caracteres maiúsculos para padrão Mercosul e tradicional
 
 

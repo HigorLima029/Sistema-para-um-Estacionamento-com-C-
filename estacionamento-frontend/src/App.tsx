@@ -18,6 +18,7 @@ function tempoDecorrido(iso: string, agora: number): string {
 export default function App() {
   const [vagas, setVagas] = useState<Vagas | null>(null)
   const [veiculos, setVeiculos] = useState<Veiculo[]>([])
+  const [busca, setBusca] = useState('')
   const [placa, setPlaca] = useState('')
   const [modelo, setModelo] = useState('')
   const [erro, setErro] = useState<string | null>(null)
@@ -90,6 +91,14 @@ export default function App() {
     setPlaca(valor)
   }
 
+  const veiculosFiltrados = useMemo(() => {
+    const termo = busca.trim().toLowerCase()
+    if (!termo) return veiculos
+    return veiculos.filter(
+      (v) => v.placa.toLowerCase().includes(termo) || v.modelo.toLowerCase().includes(termo)
+    )
+  }, [veiculos, busca])
+
   const vagasTexto = useMemo(() => {
     if (!vagas) return '—'
     return String(vagas.vagasDisponiveis).padStart(2, '0')
@@ -146,15 +155,40 @@ export default function App() {
         </section>
 
         <section className="painel painel--lista">
-          <h2 className="painel__titulo">
-            Veículos no pátio <span className="painel__contagem">({veiculos.length})</span>
-          </h2>
+          <div className="painel__topo">
+            <h2 className="painel__titulo" style={{ margin: 0 }}>
+              Veículos no pátio <span className="painel__contagem">({veiculos.length})</span>
+            </h2>
 
-          {veiculos.length === 0 ? (
-            <p className="vazio">Nenhum veículo estacionado no momento.</p>
+            <div className="busca">
+              <input
+                type="text"
+                placeholder="Buscar por placa ou modelo…"
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                className="busca__input"
+              />
+              {busca && (
+                <button
+                  type="button"
+                  className="busca__limpar"
+                  onClick={() => setBusca('')}
+                  title="Limpar busca"
+                  aria-label="Limpar busca"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          </div>
+
+          {veiculosFiltrados.length === 0 ? (
+            <p className="vazio">
+              {busca ? `Nenhum veículo encontrado para "${busca}".` : 'Nenhum veículo estacionado no momento.'}
+            </p>
           ) : (
             <div className="grade-tickets">
-              {veiculos.map((v) => (
+              {veiculosFiltrados.map((v) => (
                 <article className="ticket" key={v.placa}>
                   <div className="ticket__topo">
                     <span className="ticket__placa">{v.placa}</span>

@@ -53,14 +53,17 @@ export default function App() {
     e.preventDefault()
     setErro(null)
 
-    if (!placa.trim() || !modelo.trim()) {
+    const placaLimpa = placa.trim().toUpperCase()
+    const modeloLimpo = modelo.trim()
+
+    if (!placaLimpa || !modeloLimpo) {
       setErro('Preencha placa e modelo do veículo.')
       return
     }
 
     setCarregando(true)
     try {
-      await api.adicionarVeiculo(placa, modelo)
+      await api.adicionarVeiculo(placaLimpa, modeloLimpo)
       setPlaca('')
       setModelo('')
       await carregarDados()
@@ -80,6 +83,11 @@ export default function App() {
     } catch (err) {
       setErro(err instanceof Error ? err.message : 'Não foi possível registrar a saída.')
     }
+  }
+
+  const handlePlacaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const valor = e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 8)
+    setPlaca(valor)
   }
 
   const vagasTexto = useMemo(() => {
@@ -115,7 +123,7 @@ export default function App() {
               <span>Placa</span>
               <input
                 value={placa}
-                onChange={(e) => setPlaca(e.target.value.toUpperCase())}
+                onChange={handlePlacaChange}
                 placeholder="ABC1D23"
                 maxLength={8}
                 className="campo__input campo__input--mono"

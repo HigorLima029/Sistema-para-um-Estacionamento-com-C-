@@ -283,6 +283,10 @@ function Recibo({ saida, onFechar }: { saida: Saida; onFechar: () => void }) {
     currency: 'BRL',
   })
 
+  const handleImprimir = () => {
+    window.print()
+  }
+
   return (
     <div className="sobreposicao" role="dialog" aria-modal="true" aria-label="Comprovante de saída">
       <div className="cupom">
@@ -312,9 +316,14 @@ function Recibo({ saida, onFechar }: { saida: Saida; onFechar: () => void }) {
           <span>Total</span>
           <span className="mono">{valorFormatado}</span>
         </div>
-        <button className="botao botao--primario cupom__fechar" onClick={onFechar}>
-          Fechar
-        </button>
+        <div className="cupom__acoes">
+          <button type="button" className="botao botao--secundario" onClick={handleImprimir}>
+            🖨️ Imprimir cupom
+          </button>
+          <button type="button" className="botao botao--primario cupom__fechar" onClick={onFechar}>
+            Fechar
+          </button>
+        </div>
       </div>
     </div>
   )

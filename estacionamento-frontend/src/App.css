@@ -458,9 +458,26 @@
   font-weight: 700;
 }
 
+.cupom__acoes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+}
+
 .cupom__fechar {
   width: 100%;
-  margin-top: 1.5rem;
+}
+
+.botao--secundario {
+  background: #e2dfd4;
+  color: #1a1c20;
+  border: 1px solid #c5c2b6;
+  width: 100%;
+}
+
+.botao--secundario:hover {
+  background: #d5d1c4;
 }
 
 .mono {
@@ -525,4 +542,35 @@
   padding: 0.15rem 0.5rem;
   border-radius: 4px;
   font-weight: 600;
+}
+
+/* ---------- Impressão do Comprovante ---------- */
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .sobreposicao,
+  .cupom,
+  .cupom * {
+    visibility: visible;
+  }
+  .sobreposicao {
+    position: absolute;
+    inset: 0;
+    background: transparent;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 2rem;
+  }
+  .cupom {
+    box-shadow: none;
+    border: 1px dashed #000;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+  .cupom__acoes {
+    display: none !important;
+  }
 }

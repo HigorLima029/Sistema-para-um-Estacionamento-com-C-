@@ -3,6 +3,14 @@ import { api } from './api'
 import type { Vagas, Veiculo, Saida } from './types'
 import './App.css'
 
+function formatarDataHora(iso: string): string {
+  const data = new Date(iso)
+  return `${data.toLocaleDateString('pt-BR')} ${data.toLocaleTimeString('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })}`
+}
+
 function formatarHora(iso: string): string {
   return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
 }
@@ -18,6 +26,8 @@ function tempoDecorrido(iso: string, agora: number): string {
 export default function App() {
   const [vagas, setVagas] = useState<Vagas | null>(null)
   const [veiculos, setVeiculos] = useState<Veiculo[]>([])
+  const [historico, setHistorico] = useState<Veiculo[]>([])
+  const [abaAtiva, setAbaAtiva] = useState<'patio' | 'historico'>('patio')
   const [busca, setBusca] = useState('')
   const [placa, setPlaca] = useState('')
   const [modelo, setModelo] = useState('')
@@ -29,9 +39,14 @@ export default function App() {
 
   const carregarDados = async () => {
     try {
-      const [v, lista] = await Promise.all([api.consultarVagas(), api.listarEstacionados()])
+      const [v, lista, hist] = await Promise.all([
+        api.consultarVagas(),
+        api.listarEstacionados(),
+        api.listarHistorico().catch(() => []),
+      ])
       setVagas(v)
       setVeiculos(lista)
+      setHistorico(hist)
       setOffline(false)
     } catch {
       setOffline(true)
@@ -99,6 +114,14 @@ export default function App() {
     )
   }, [veiculos, busca])
 
+  const historicoFiltrado = useMemo(() => {
+    const termo = busca.trim().toLowerCase()
+    if (!termo) return historico
+    return historico.filter(
+      (v) => v.placa.toLowerCase().includes(termo) || v.modelo.toLowerCase().includes(termo)
+    )
+  }, [historico, busca])
+
   const vagasTexto = useMemo(() => {
     if (!vagas) return '—'
     return String(vagas.vagasDisponiveis).padStart(2, '0')
@@ -156,9 +179,22 @@ export default function App() {
 
         <section className="painel painel--lista">
           <div className="painel__topo">
-            <h2 className="painel__titulo" style={{ margin: 0 }}>
-              Veículos no pátio <span className="painel__contagem">({veiculos.length})</span>
-            </h2>
+            <div className="abas">
+              <button
+                type="button"
+                className={`aba ${abaAtiva === 'patio' ? 'aba--ativa' : ''}`}
+                onClick={() => setAbaAtiva('patio')}
+              >
+                Veículos no pátio <span className="painel__contagem">({veiculos.length})</span>
+              </button>
+              <button
+                type="button"
+                className={`aba ${abaAtiva === 'historico' ? 'aba--ativa' : ''}`}
+                onClick={() => setAbaAtiva('historico')}
+              >
+                Histórico geral <span className="painel__contagem">({historico.length})</span>
+              </button>
+            </div>
 
             <div className="busca">
               <input
@@ -182,26 +218,56 @@ export default function App() {
             </div>
           </div>
 
-          {veiculosFiltrados.length === 0 ? (
-            <p className="vazio">
-              {busca ? `Nenhum veículo encontrado para "${busca}".` : 'Nenhum veículo estacionado no momento.'}
-            </p>
+          {abaAtiva === 'patio' ? (
+            veiculosFiltrados.length === 0 ? (
+              <p className="vazio">
+                {busca ? `Nenhum veículo encontrado para "${busca}".` : 'Nenhum veículo estacionado no momento.'}
+              </p>
+            ) : (
+              <div className="grade-tickets">
+                {veiculosFiltrados.map((v) => (
+                  <article className="ticket" key={v.placa}>
+                    <div className="ticket__topo">
+                      <span className="ticket__placa">{v.placa}</span>
+                      <span className="ticket__hora">entrada {formatarHora(v.horaEntrada)}</span>
+                    </div>
+                    <p className="ticket__modelo">{v.modelo}</p>
+                    <p className="ticket__decorrido">{tempoDecorrido(v.horaEntrada, agora)} no pátio</p>
+                    <button className="botao botao--saida" onClick={() => handleRemover(v.placa)}>
+                      Registrar saída
+                    </button>
+                  </article>
+                ))}
+              </div>
+            )
           ) : (
-            <div className="grade-tickets">
-              {veiculosFiltrados.map((v) => (
-                <article className="ticket" key={v.placa}>
-                  <div className="ticket__topo">
-                    <span className="ticket__placa">{v.placa}</span>
-                    <span className="ticket__hora">entrada {formatarHora(v.horaEntrada)}</span>
+            historicoFiltrado.length === 0 ? (
+              <p className="vazio">
+                {busca ? `Nenhum registro encontrado para "${busca}".` : 'Nenhum histórico registrado.'}
+              </p>
+            ) : (
+              <div className="historico-lista">
+                {historicoFiltrado.map((v, i) => (
+                  <div className="historico-item" key={`${v.placa}-${v.horaEntrada}-${i}`}>
+                    <div className="historico-item__info">
+                      <span className="historico-item__placa">{v.placa}</span>
+                      <span className="historico-item__modelo">{v.modelo}</span>
+                    </div>
+                    <div className="historico-item__datas">
+                      <span><strong>Entrada:</strong> {formatarDataHora(v.horaEntrada)}</span>
+                      <span>
+                        <strong>Saída:</strong>{' '}
+                        {v.horaSaida ? (
+                          formatarDataHora(v.horaSaida)
+                        ) : (
+                          <span className="tag-ativo">Ainda no pátio</span>
+                        )}
+                      </span>
+                    </div>
                   </div>
-                  <p className="ticket__modelo">{v.modelo}</p>
-                  <p className="ticket__decorrido">{tempoDecorrido(v.horaEntrada, agora)} no pátio</p>
-                  <button className="botao botao--saida" onClick={() => handleRemover(v.placa)}>
-                    Registrar saída
-                  </button>
-                </article>
-              ))}
-            </div>
+                ))}
+              </div>
+            )
           )}
         </section>
       </main>

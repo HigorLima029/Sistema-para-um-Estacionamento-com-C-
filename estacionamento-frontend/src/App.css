@@ -143,6 +143,45 @@
   margin-bottom: 1.25rem;
 }
 
+.abas {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--borda);
+  padding-bottom: 0.5rem;
+  overflow-x: auto;
+}
+
+.aba {
+  background: transparent;
+  border: none;
+  color: var(--giz-fraco);
+  font-family: var(--fonte-sinal);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 1.05rem;
+  font-weight: 600;
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+}
+
+.aba:hover {
+  color: var(--giz);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.aba--ativa {
+  background: var(--asfalto);
+  color: var(--linha);
+  border: 1px solid var(--linha-fraca);
+}
+
+.aba--ativa .painel__contagem {
+  color: var(--linha);
+}
+
 /* ---------- Campo de busca ---------- */
 
 .busca {
@@ -426,4 +465,64 @@
 
 .mono {
   font-family: var(--fonte-mono);
+}
+
+/* ---------- Histórico de Veículos ---------- */
+
+.historico-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.historico-item {
+  background: var(--asfalto-painel-2);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.historico-item__info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.historico-item__placa {
+  font-family: var(--fonte-mono);
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: 0.06em;
+  color: var(--linha);
+  background: var(--asfalto);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid var(--linha-fraca);
+}
+
+.historico-item__modelo {
+  color: var(--giz);
+  font-size: 0.95rem;
+}
+
+.historico-item__datas {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.8rem;
+  color: var(--giz-fraco);
+  flex-wrap: wrap;
+}
+
+.tag-ativo {
+  background: rgba(79, 166, 114, 0.15);
+  color: var(--verde);
+  border: 1px solid var(--verde);
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
 }

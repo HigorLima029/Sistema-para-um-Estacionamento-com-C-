@@ -34,6 +34,7 @@ export default function App() {
   const [erro, setErro] = useState<string | null>(null)
   const [carregando, setCarregando] = useState(false)
   const [recibo, setRecibo] = useState<Saida | null>(null)
+  const [veiculoParaRemover, setVeiculoParaRemover] = useState<Veiculo | null>(null)
   const [agora, setAgora] = useState(Date.now())
   const [offline, setOffline] = useState(false)
 
@@ -64,6 +65,11 @@ export default function App() {
   }, [])
 
   const vagasLotado = vagas !== null && vagas.vagasDisponiveis <= 0
+
+  const percentualOcupacao = useMemo(() => {
+    if (!vagas || vagas.vagasTotais === 0) return 0
+    return Math.min(100, Math.round((vagas.vagasOcupadas / vagas.vagasTotais) * 100))
+  }, [vagas])
 
   const handleAdicionar = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -134,9 +140,30 @@ export default function App() {
           <span className="letreiro__ponto" aria-hidden />
           PÁTIO CENTRAL
         </div>
-        <div className={`letreiro__vagas ${vagasLotado ? 'letreiro__vagas--lotado' : ''}`}>
-          <span className="letreiro__numero">{vagasTexto}</span>
-          <span className="letreiro__label">{vagasLotado ? 'LOTADO' : 'VAGAS LIVRES'}</span>
+        <div className="letreiro__lado-direito">
+          <div className="letreiro__capacidade">
+            <span className="letreiro__porcentagem">
+              {vagas ? `${vagas.vagasOcupadas}/${vagas.vagasTotais} ocupadas (${percentualOcupacao}%)` : '—'}
+            </span>
+            <div className="letreiro__barra" title={`${percentualOcupacao}% de ocupação`}>
+              <div
+                className="letreiro__barra-preenchimento"
+                style={{
+                  width: `${percentualOcupacao}%`,
+                  backgroundColor:
+                    percentualOcupacao >= 90
+                      ? 'var(--vermelho)'
+                      : percentualOcupacao >= 60
+                      ? 'var(--linha)'
+                      : 'var(--verde)',
+                }}
+              />
+            </div>
+          </div>
+          <div className={`letreiro__vagas ${vagasLotado ? 'letreiro__vagas--lotado' : ''}`}>
+            <span className="letreiro__numero">{vagasTexto}</span>
+            <span className="letreiro__label">{vagasLotado ? 'LOTADO' : 'VAGAS LIVRES'}</span>
+          </div>
         </div>
       </header>
 
@@ -233,7 +260,7 @@ export default function App() {
                     </div>
                     <p className="ticket__modelo">{v.modelo}</p>
                     <p className="ticket__decorrido">{tempoDecorrido(v.horaEntrada, agora)} no pátio</p>
-                    <button className="botao botao--saida" onClick={() => handleRemover(v.placa)}>
+                    <button className="botao botao--saida" onClick={() => setVeiculoParaRemover(v)}>
                       Registrar saída
                     </button>
                   </article>
@@ -271,6 +298,38 @@ export default function App() {
           )}
         </section>
       </main>
+
+      {veiculoParaRemover && (
+        <div className="sobreposicao" role="dialog" aria-modal="true" aria-label="Confirmar saída de veículo">
+          <div className="modal-confirmacao">
+            <h3 className="modal-confirmacao__titulo">Confirmar Saída</h3>
+            <p className="modal-confirmacao__mensagem">
+              Deseja registrar a saída do veículo de placa{' '}
+              <strong className="mono">{veiculoParaRemover.placa}</strong> ({veiculoParaRemover.modelo})?
+            </p>
+            <div className="modal-confirmacao__acoes">
+              <button
+                type="button"
+                className="botao botao--saida"
+                onClick={() => {
+                  const placaAlvo = veiculoParaRemover.placa
+                  setVeiculoParaRemover(null)
+                  handleRemover(placaAlvo)
+                }}
+              >
+                Sim, registrar saída
+              </button>
+              <button
+                type="button"
+                className="botao botao--secundario"
+                onClick={() => setVeiculoParaRemover(null)}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {recibo && <Recibo saida={recibo} onFechar={() => setRecibo(null)} />}
     </div>

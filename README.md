@@ -26,7 +26,14 @@ Backend em **ASP.NET Core Web API** (.NET 8) + front-end em **React + TypeScript
 
 ## Como rodar
 
-### 1. Backend (API)
+### Opção Rápida (Windows)
+Basta dar dois cliques no arquivo **`iniciar.bat`** (ou executar `.\iniciar.bat` no terminal). Ele abrirá os dois terminais necessários automaticamente!
+
+---
+
+### Opção Manual
+
+#### 1. Backend (API)
 
 Pré-requisito: [.NET 8 SDK](https://dotnet.microsoft.com/download).
 
@@ -38,7 +45,7 @@ dotnet run
 
 A API sobe em `http://localhost:5209`. O Swagger fica disponível em `http://localhost:5209/swagger`.
 
-### 2. Frontend (React)
+#### 2. Frontend (React)
 
 Pré-requisito: [Node.js 18+](https://nodejs.org/).
 
@@ -75,7 +82,9 @@ Ajustável em `EstacionamentoApi/Services/EstacionamentoService.cs`.
 
 O front usa uma linguagem visual de pátio de estacionamento real:
 - **Letreiro** no topo mostrando vagas disponíveis, como um painel luminoso de garagem
+- **Barra de capacidade**: Indicador dinâmico de ocupação com percentual e cores por nível (verde, amarelo e vermelho)
 - **Tickets** com recorte lateral (como um bilhete de estacionamento) para cada veículo no pátio
+- **Confirmação de saída**: Modal de segurança para evitar baixa acidental em veículos
 - **Comprovante** de saída no estilo cupom fiscal, com valor cobrado e tempo permanecido
 - **Busca em tempo real**: Campo para filtrar veículos no pátio ou no histórico por placa ou modelo
 - **Histórico geral**: Aba dedicada para consultar entradas passadas e saídas já finalizadas

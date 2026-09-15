@@ -1,4 +1,3 @@
-
 <div align="center">
 
 # 🚗 SmartPark — Sistema de Gestão de Estacionamento
